@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel=StyleSheet href="static/css/style.css" TYPE="text/css">
+        <title>Map of art galleries in Boston</title>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <style>
+                /* Always set the map height explicitly to define the size of the div
+                 * element that contains the map. */
+                #map {
+                  height: 100%;
+                }
+                /* Optional: Makes the sample page fill the window. */
+                html, body {
+                  height: 100%;
+                  margin: 0;
+                  padding: 0;
+                }
+                .map-control {
+                  background-color: #fff;
+                  border: 1px solid #ccc;
+                  box-shadow: 0 2px 2px rgba(33, 33, 33, 0.4);
+                  font-family: 'Roboto','sans-serif';
+                  margin: 10px;
+                  /* Hide the control initially, to prevent it from appearing
+                     before the map loads. */
+                  display: none;
+                }
+                /* Display the control once it is inside the map. */
+                #map .map-control { display: block; }
+          
+                .selector-control {
+                  font-size: 14px;
+                  line-height: 30px;
+                  padding-left: 5px;
+                  padding-right: 5px;
+                }
+              </style>
+    </head>
+    <body>
+        <div id="style-selector-control"  class="map-control">
+            <select id="style-selector" class="selector-control">
+            <option value="default">Default</option>
+            <option value="silver">Silver</option>
+            <option value="night">Night mode</option>
+            <option value="retro" selected="selected">Retro</option>
+            <option value="hiding">Hide features</option>
+            </select>
+        </div>
+        <h1>Map of art galleries in Boston</h1>
+        <div id="map"></div>
+        
+
+    <script async defer
+    src=
+    "https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyDjhbgvm3SLWmHBGPQb0VzCQ2uHQHpJ6ow&v=3&callback=initMap">
+    </script>
+    <script src="static/js/index.js"></script>
+
+    </body>
+</html>
