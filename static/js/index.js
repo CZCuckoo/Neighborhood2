@@ -1,7 +1,27 @@
+var fourSquareSecret = "client_id=3AISUGDKCWVZPEILE41CLJI4MV0P2A4RBMSWF1JHFXYA2QPT&client_secret=GVMJSGMG4MRM2HDITEFGV0LE0VWRIZEDORPETPRAVDSQ1JY1&v=20181114";
+
+// Find out how to coordinate search on foursquare to zoom level
+
+
 var map;
+var latvar = 42.361145;
+var lngvar = -71.057083;
 
+var locations = ko.observableArray();
 var markers = [];
+var availableCities = ko.observableArray();
+availableCities.push("View All");
 
+availableCities.subscribe(function(selectedCity){
+    $.each(markers, function(index){
+        var marker = markers[index];
+        if (marker.city === selectedCity || selectedCity === "View All") {
+            marker.setMap(map);
+        } else {
+            marker.setMap(null);
+        } 
+    });
+});
 
 function initMap () {
 
@@ -11,7 +31,7 @@ function initMap () {
 
     //constructor creates a new map.
     map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: 42.361145, lng: -71.057083},
+        center: {lat: latvar, lng: lngvar},
         zoom: 13,
         // **** Setting styles. Not working if I link to external. 
         // styles: styles,
@@ -32,53 +52,68 @@ function initMap () {
     });
 
 
-    var locations = [
-        {title: 'Museum of Fine Arts', location: {lat: 42.3394, lng: -71.0940}},
-    ]
-
-    // Creating info window
     var largeInfowindow = new google.maps.InfoWindow();
-    var bounds = new google.maps.LatLngBounds();
+    locations.subscribe(function(changes) {
+        
+        for (var i = 0; i < changes.length; i++) {
+            var index = changes[i].index;
+            // Get the position from the location Array.
+            var position = locations()[index].location;
+            var title = locations()[index].title;
+            var VENUE_ID = locations()[index].id;
+            var city = locations()[index].city;
+    
+            // Create a marker per location, and put into markers Array.
+            var marker = new google.maps.Marker({
+                map: map,
+                position: position,
+                title: title,
+                animation: google.maps.Animation.DROP,
+                id: VENUE_ID,
+                city: city
+            });
+    
+            // Push the marker to the array of markers.
+            markers.push(marker);
+            if (availableCities.indexOf(city) == -1) {
+                availableCities.push(city);
+            }
+            
+    
+            // Create an onclick event to open an infowindow at each marker.
+            marker.addListener('click', function() {
+                populateInfoWindow(this, largeInfowindow);
+            });        
+        }
+    }, null, "arrayChange");
+    ko.applyBindings(locations);
+    google.maps.event.addDomListener(window, 'load', initializeGalleries);
 
-    for (var i = 0; i < locations.length; i++) {
-        // Get the position from the location Array.
-        var position = locations[i].location;
-        var title = locations[i].title;
-
-        // Create a marker per location, and put into markers Array.
-        var marker = new google.maps.Marker({
-            map: map,
-            position: position,
-            title: title,
-            animation: google.maps.Animation.DROP,
-            id: i
-        });
-
-        // Push the marker to the array of markers.
-        markers.push(marker);
-
-        // Extend the boundaries of the map for each marker
-        bounds.extend(marker.position);
-
-        // Create an onclick event to open an infowindow at each marker.
-        marker.addListener('click', function() {
-            populateInfoWindow(this, largeInfowindow);
-        });        
-    }
 
     // Function to populate the infowindow when a marker is clicked. 
     function populateInfoWindow(marker, infowindow) {
         // Check to make sure the infowindow is not already opened on this marker
         if (infowindow.marker != marker) {
             infowindow.marker = marker;
-            infowindow.setContent('<div>' + marker.title + '</div>');
-            infowindow.open(map, marker);
+            var footer = '<br><div>' + marker.title + '</div><img src="static/img/powered-by-foursquare-blue.png" width ="200">';
+            $.get( "https://api.foursquare.com/v2/venues/" + marker.id + "/photos?" + fourSquareSecret, function( data ) {
+                if (data.response.photos.count > 0) {
+                    infowindow.setContent('<img src="' + data.response.photos.items[0].prefix + "width200" + data.response.photos.items[0].suffix + '">' + footer);  
+                } else {
+                    infowindow.setContent(footer);
+                }
+                infowindow.open(map, marker);
+            }).fail(function() {
+                infowindow.setContent(footer);
+              }).always(function() {
+                infowindow.open(map, marker);
+              })
+            
             // Make sure the marker property is cleared if the infowindow is closed
             infowindow.addListener('closeclick', function() {
                 infowindow.setMarker(null);
             });
         };
-        map.fitBounds(bounds);
         
 
     };
@@ -86,6 +121,35 @@ function initMap () {
     
 
 }
+
+function initializeGalleries() {
+    loadGalleries("",latvar,lngvar);
+}
+
+function artGallery(id, name, location) {
+    var self = this;
+    self.id = id;
+    self.title = name;
+    self.location = {lat: location.lat, lng: location.lng};
+    self.displayAddress = location.address + " " + location.city + ", "+ location.state;
+    self.city = location.city
+    // Need to add something for google to reference to add delete
+  };
+  
+  loadGalleries = function (query,lat,lng) {
+      if (query !== "") {
+          query = "&query=" + query;
+      }
+  
+      $.get( "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lng + query + "&categoryId=4bf58dd8d48988d1e2931735&" + fourSquareSecret, function( data ) {
+          $.each( data.response.venues, function( index, value ) {
+              locations.push(new artGallery(value.id, value.name, value.location));
+          });
+        }).fail(function() {
+            //   TODO Better error handling
+            alert( "Unable to load data from foursquare. Falling back to fixed data" );
+          });;
+  };
 
 var styles = {
     default: null,

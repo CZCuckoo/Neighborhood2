@@ -2,6 +2,12 @@
 <html>
     <head>
         <link rel=StyleSheet href="static/css/style.css" TYPE="text/css">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+        <script
+            src="https://code.jquery.com/jquery-1.12.4.min.js"
+            integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+            crossorigin="anonymous">
+        </script>
         <title>Map of art galleries in Boston</title>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
@@ -49,6 +55,10 @@
             </select>
         </div>
         <h1>Map of art galleries in Boston</h1>
+        <p>
+            Destination city:
+            <select data-bind="options: availableCities"></select>
+        </p>
         <div id="map"></div>
         
 
@@ -56,6 +66,7 @@
     src=
     "https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyDjhbgvm3SLWmHBGPQb0VzCQ2uHQHpJ6ow&v=3&callback=initMap">
     </script>
+
     <script src="static/js/index.js"></script>
 
     </body>
