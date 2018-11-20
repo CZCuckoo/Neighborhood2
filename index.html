@@ -47,17 +47,17 @@
     <body>
         <div id="style-selector-control"  class="map-control">
             <select id="style-selector" class="selector-control">
-            <option value="default">Default</option>
+            <option value="default" selected="selected">Default</option>
             <option value="silver">Silver</option>
             <option value="night">Night mode</option>
-            <option value="retro" selected="selected">Retro</option>
+            <option value="retro" >Retro</option>
             <option value="hiding">Hide features</option>
             </select>
         </div>
         <h1>Map of art galleries in Boston</h1>
         <p>
             Destination city:
-            <select data-bind="options: availableCities"></select>
+            <select id="cityDropdown" data-bind="options: availableCities"></select>
         </p>
         <div id="map"></div>
         

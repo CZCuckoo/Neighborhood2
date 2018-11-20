@@ -1,6 +1,9 @@
 var fourSquareSecret = "client_id=3AISUGDKCWVZPEILE41CLJI4MV0P2A4RBMSWF1JHFXYA2QPT&client_secret=GVMJSGMG4MRM2HDITEFGV0LE0VWRIZEDORPETPRAVDSQ1JY1&v=20181114";
 
 // Find out how to coordinate search on foursquare to zoom level
+// Add list of 
+// Look at ID's in markers list, and that's how you list the available 
+// if marker is true, get id of marker, and find it in available cities array, and add to list. 
 
 
 var map;
@@ -12,13 +15,16 @@ var markers = [];
 var availableCities = ko.observableArray();
 availableCities.push("View All");
 
-availableCities.subscribe(function(selectedCity){
+
+var dropdown = document.getElementById('cityDropdown')
+dropdown.addEventListener('change', function(){
+    var selectedCity = dropdown.value;
     $.each(markers, function(index){
         var marker = markers[index];
         if (marker.city === selectedCity || selectedCity === "View All") {
-            marker.setMap(map);
+            marker.setVisible(true);
         } else {
-            marker.setMap(null);
+            marker.setVisible(false);
         } 
     });
 });
@@ -75,7 +81,7 @@ function initMap () {
     
             // Push the marker to the array of markers.
             markers.push(marker);
-            if (availableCities.indexOf(city) == -1) {
+            if (typeof city != "undefined" && availableCities.indexOf(city) == -1) {
                 availableCities.push(city);
             }
             
@@ -96,7 +102,7 @@ function initMap () {
         if (infowindow.marker != marker) {
             infowindow.marker = marker;
             var footer = '<br><div>' + marker.title + '</div><img src="static/img/powered-by-foursquare-blue.png" width ="200">';
-            $.get( "https://api.foursquare.com/v2/venues/" + marker.id + "/photos?" + fourSquareSecret, function( data ) {
+            $.get( "https://api.foursquare.com/v2/evnues/" + marker.id + "/photos?" + fourSquareSecret, function( data ) {
                 if (data.response.photos.count > 0) {
                     infowindow.setContent('<img src="' + data.response.photos.items[0].prefix + "width200" + data.response.photos.items[0].suffix + '">' + footer);  
                 } else {
@@ -111,7 +117,7 @@ function initMap () {
             
             // Make sure the marker property is cleared if the infowindow is closed
             infowindow.addListener('closeclick', function() {
-                infowindow.setMarker(null);
+                infowindow.marker = null;
             });
         };
         
@@ -141,7 +147,7 @@ function artGallery(id, name, location) {
           query = "&query=" + query;
       }
   
-      $.get( "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lng + query + "&categoryId=4bf58dd8d48988d1e2931735&" + fourSquareSecret, function( data ) {
+      $.get( "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lng + query + "&categoryId=4bf58dd8d48988d1e2931735&radius=8000&" + fourSquareSecret, function( data ) {
           $.each( data.response.venues, function( index, value ) {
               locations.push(new artGallery(value.id, value.name, value.location));
           });
