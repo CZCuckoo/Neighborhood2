@@ -3,18 +3,21 @@ body {
     font-family: arial, sans-swerif;
     height: 100%;
     margin: 0;
-    padding 0;
+    padding: 0;
 }
 
 .container {
     display: flex; 
-    flex-flow: row wrap;
-    height: 100%;
+    justify-content: center;
+    /* flex-flow: row wrap; */
+    height: 80%;
 
 }
 
+
 #header {
     border: 1px solid black;
+    align-self: flex-start;
 
 }
 
@@ -24,8 +27,9 @@ body {
 }
 
 #map {
-    height: 80%;
-    width: 20%;
+    /* height: 80%; */
+    flex: 1;
+
     border: 1px solid black;
 }
 
