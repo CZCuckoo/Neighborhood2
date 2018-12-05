@@ -4,6 +4,10 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
+    color: white;
+    background: #5D5C61;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    
 }
 
 .container {
@@ -16,29 +20,31 @@ body {
 
 
 #header {
-    border: 1px solid black;
-    align-self: flex-start;
+
+    text-align: center;
+
 
 }
 
 #sidenav {
-    border: 1px solid black;
+
+    padding: 10px;
+    background: #938e94;
 
 }
 
 #map {
-    /* height: 80%; */
     flex: 1;
+    border: 5px solid #938e94;
 
-    border: 1px solid black;
+
 }
 
-/* Optional: Makes the sample page fill the window. */
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+#footer {
+    text-align: right;
+    padding: 10px;
 }
+
 
 .map-control {
     background-color: #fff;
