@@ -1,11 +1,5 @@
 var fourSquareSecret = "client_id=3AISUGDKCWVZPEILE41CLJI4MV0P2A4RBMSWF1JHFXYA2QPT&client_secret=GVMJSGMG4MRM2HDITEFGV0LE0VWRIZEDORPETPRAVDSQ1JY1&v=20181114";
 
-// Find out how to coordinate search on foursquare to zoom level
-// Add list of 
-// Look at ID's in markers list, and that's how you list the available 
-// if marker is true, get id of marker, and find it in available cities array, and add to list. 
-
-
 var map;
 var latvar = 42.361145;
 var lngvar = -71.057083;
@@ -120,13 +114,28 @@ function initMap () {
                 infowindow.marker = null;
             });
         };
-        
-
     };
-
-    
-
 }
+
+var galleries = [
+  'Item 1','Item 2','Item 3'
+];
+
+function makeUL(array) {
+  var list = document.createElement('ul');
+  for(var i = 0; i < array.length; i++) {
+    var item = document.createElement('li');
+    item.appendChild(document.createTextNode(array[i]));
+    list.appendChild(item);
+  }
+  return list;
+}
+
+document.getElementById('gallerylist').appendChild(makeUL(galleries));
+
+
+
+
 
 function initializeGalleries() {
     loadGalleries("",latvar,lngvar);
