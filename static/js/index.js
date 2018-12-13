@@ -29,6 +29,30 @@ dropdown.addEventListener('change', function(){
     });
 });
 
+function artGallery(id, name, location) {
+  var self = this;
+  self.id = id;
+  self.title = name;
+  self.marker = null;
+  self.location = {lat: location.lat, lng: location.lng};
+  self.displayAddress = location.address + " " + location.city + ", "+ location.state;
+  self.city = location.city;
+};
+
+loadGalleries = function (query,lat,lng) {
+    if (query !== "") {
+        query = "&query=" + query;
+    }
+
+    $.get( "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lng + query + "&categoryId=4bf58dd8d48988d1e2931735&radius=8000&" + fourSquareSecret, function( data ) {
+        $.each( data.response.venues, function( index, value ) {
+            galleries.push(new artGallery(value.id, value.name, value.location));
+        });
+      }).fail(function() {
+          alert( "Unable to load data from foursquare. Falling back to fixed data" );
+        });;
+};
+
 function initMap () {
 
     //constructor creates a new map.
@@ -92,7 +116,7 @@ function initMap () {
         }
     }, null, "arrayChange");
     ko.applyBindings(galleries);
-    google.maps.event.addDomListener(window, 'load', initializeGalleries);
+    google.maps.event.addDomListener(window, 'load', loadGalleries("",latvar,lngvar));
 
 
     // Function to populate the infowindow when a marker is clicked. 
@@ -121,34 +145,6 @@ function initMap () {
         };
     };
 }
-
-function initializeGalleries() {
-    loadGalleries("",latvar,lngvar);
-}
-
-function artGallery(id, name, location) {
-    var self = this;
-    self.id = id;
-    self.title = name;
-    self.marker = null;
-    self.location = {lat: location.lat, lng: location.lng};
-    self.displayAddress = location.address + " " + location.city + ", "+ location.state;
-    self.city = location.city;
-  };
-  
-  loadGalleries = function (query,lat,lng) {
-      if (query !== "") {
-          query = "&query=" + query;
-      }
-  
-      $.get( "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lng + query + "&categoryId=4bf58dd8d48988d1e2931735&radius=8000&" + fourSquareSecret, function( data ) {
-          $.each( data.response.venues, function( index, value ) {
-              galleries.push(new artGallery(value.id, value.name, value.location));
-          });
-        }).fail(function() {
-            alert( "Unable to load data from foursquare. Falling back to fixed data" );
-          });;
-  };
 
 var styles = {
     default: null,
