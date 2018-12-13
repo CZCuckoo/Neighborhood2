@@ -21,9 +21,9 @@
             <div id="sidenav" class="main-navigation">
                 <p><b>Filter by city:  </b><select id="cityDropdown" data-bind="options: availableCities"></select></p>
                 <p>List of galleries</p>
-                <div id="gallerylist">
-                    <ul data-bind="foreach: galleries">
-                        <li data-bind="text: title"></li>
+                <div id="markerList">
+                    <ul data-bind="foreach: markerList">
+                        <li data-bind="text: title, click: showInfo"></li>
                     </ul>
                 </div>
             </div>

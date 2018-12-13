@@ -18,6 +18,14 @@ body {
 
 }
 
+.popup {
+    color: black;
+}
+
+li:hover {
+    color: blue;
+    text-decoration: underline;
+}
 
 #header {
 

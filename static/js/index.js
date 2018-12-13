@@ -3,20 +3,26 @@ var fourSquareSecret = "client_id=3AISUGDKCWVZPEILE41CLJI4MV0P2A4RBMSWF1JHFXYA2Q
 var map;
 var latvar = 42.361145;
 var lngvar = -71.057083;
+var largeInfowindow;
 
 var galleries = ko.observableArray();
-var markers = [];
-var availableCities = ko.observableArray();
+var availableCities = [];
+var markerList = ko.observableArray();
 availableCities.push("View All");
 
 
 var dropdown = document.getElementById('cityDropdown')
 dropdown.addEventListener('change', function(){
     var selectedCity = dropdown.value;
-    $.each(markers, function(index){
-        var marker = markers[index];
+    largeInfowindow.close();
+    largeInfowindow.marker = null;
+    markerList.removeAll();
+
+    $.each(galleries(), function(index){
+        var marker = galleries()[index].marker;
         if (marker.city === selectedCity || selectedCity === "View All") {
             marker.setVisible(true);
+            markerList.push(galleries()[index].marker)
         } else {
             marker.setVisible(false);
         } 
@@ -29,8 +35,6 @@ function initMap () {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: latvar, lng: lngvar},
         zoom: 13,
-        // **** Setting styles. Not working if I link to external. 
-        // styles: styles,
         mapTypeControl: false
     });
 
@@ -48,7 +52,7 @@ function initMap () {
     });
 
 
-    var largeInfowindow = new google.maps.InfoWindow();
+    largeInfowindow = new google.maps.InfoWindow();
     galleries.subscribe(function(changes) {
         
         for (var i = 0; i < changes.length; i++) {
@@ -58,7 +62,7 @@ function initMap () {
             var title = galleries()[index].title;
             var VENUE_ID = galleries()[index].id;
             var city = galleries()[index].city;
-    
+            
             // Create a marker per location, and put into markers Array.
             var marker = new google.maps.Marker({
                 map: map,
@@ -66,11 +70,14 @@ function initMap () {
                 title: title,
                 animation: google.maps.Animation.DROP,
                 id: VENUE_ID,
-                city: city
+                city: city,
+                showInfo: marker => google.maps.event.trigger(marker, 'click')
             });
-    
-            // Push the marker to the array of markers.
-            markers.push(marker);
+
+            galleries()[index].marker = marker
+            markerList.push(marker)
+
+            // Push the unique city to list of available cities
             if (typeof city != "undefined" && availableCities.indexOf(city) == -1) {
                 availableCities.push(city);
             }
@@ -78,7 +85,9 @@ function initMap () {
     
             // Create an onclick event to open an infowindow at each marker.
             marker.addListener('click', function() {
-                populateInfoWindow(this, largeInfowindow);
+              marker.setAnimation(google.maps.Animation.BOUNCE)
+              setTimeout(() => marker.setAnimation(null), 1000)
+              populateInfoWindow(galleries()[index], largeInfowindow);
             });        
         }
     }, null, "arrayChange");
@@ -87,11 +96,12 @@ function initMap () {
 
 
     // Function to populate the infowindow when a marker is clicked. 
-    function populateInfoWindow(marker, infowindow) {
+    function populateInfoWindow(gallery, infowindow) {
+      var marker = gallery.marker;
         // Check to make sure the infowindow is not already opened on this marker
         if (infowindow.marker != marker) {
             infowindow.marker = marker;
-            var footer = '<br><div>' + marker.title + '</div><img src="static/img/powered-by-foursquare-blue.png" width ="200">';
+            var footer = '<br><div class="popup">' + marker.title + "<br>" + gallery.displayAddress + '</div><br><br><img src="static/img/powered-by-foursquare-blue.png" width ="200">';
             $.get( "https://api.foursquare.com/v2/venues/" + marker.id + "/photos?" + fourSquareSecret, function( data ) {
                 if (data.response.photos.count > 0) {
                     infowindow.setContent('<img src="' + data.response.photos.items[0].prefix + "width200" + data.response.photos.items[0].suffix + '">' + footer);  
@@ -104,7 +114,6 @@ function initMap () {
               }).always(function() {
                 infowindow.open(map, marker);
               })
-            
             // Make sure the marker property is cleared if the infowindow is closed
             infowindow.addListener('closeclick', function() {
                 infowindow.marker = null;
@@ -112,26 +121,6 @@ function initMap () {
         };
     };
 }
-
-// var galleries = [
-//   'Item 1','Item 2','Item 3'
-// ];
-
-function makeUL(array) {
-  var list = document.createElement('ul');
-  for(var i = 0; i < array.length; i++) {
-    var item = document.createElement('li');
-    item.appendChild(document.createTextNode(array[i]));
-    list.appendChild(item);
-  }
-  return list;
-}
-
-document.getElementById('gallerylist').appendChild(makeUL(galleries));
-
-
-
-
 
 function initializeGalleries() {
     loadGalleries("",latvar,lngvar);
@@ -141,9 +130,10 @@ function artGallery(id, name, location) {
     var self = this;
     self.id = id;
     self.title = name;
+    self.marker = null;
     self.location = {lat: location.lat, lng: location.lng};
     self.displayAddress = location.address + " " + location.city + ", "+ location.state;
-    self.city = location.city
+    self.city = location.city;
   };
   
   loadGalleries = function (query,lat,lng) {
@@ -156,7 +146,6 @@ function artGallery(id, name, location) {
               galleries.push(new artGallery(value.id, value.name, value.location));
           });
         }).fail(function() {
-            //   TODO Better error handling
             alert( "Unable to load data from foursquare. Falling back to fixed data" );
           });;
   };
