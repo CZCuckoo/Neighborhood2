@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html>  
     <head>
         <link rel=StyleSheet href="static/css/style.css" TYPE="text/css">
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
@@ -20,8 +20,12 @@
         <div class="container">    
             <div id="sidenav" class="main-navigation">
                 <p><b>Filter by city:  </b><select id="cityDropdown" data-bind="options: availableCities"></select></p>
-                <p>List of locations</p>
-                <div id="gallerylist"></div>
+                <p>List of galleries</p>
+                <div id="gallerylist">
+                    <ul data-bind="foreach: galleries">
+                        <li data-bind="text: title"></li>
+                    </ul>
+                </div>
             </div>
             <div id="map"></div>
             

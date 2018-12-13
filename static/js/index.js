@@ -4,7 +4,7 @@ var map;
 var latvar = 42.361145;
 var lngvar = -71.057083;
 
-var locations = ko.observableArray();
+var galleries = ko.observableArray();
 var markers = [];
 var availableCities = ko.observableArray();
 availableCities.push("View All");
@@ -24,10 +24,6 @@ dropdown.addEventListener('change', function(){
 });
 
 function initMap () {
-
-    // Setting styles. Not working. Won't fetch. 
-    // var fetchStyles = fetch('static/js/styles.json')
-    // var styles = await (await fetchStyles).json()
 
     //constructor creates a new map.
     map = new google.maps.Map(document.getElementById('map'), {
@@ -53,15 +49,15 @@ function initMap () {
 
 
     var largeInfowindow = new google.maps.InfoWindow();
-    locations.subscribe(function(changes) {
+    galleries.subscribe(function(changes) {
         
         for (var i = 0; i < changes.length; i++) {
             var index = changes[i].index;
             // Get the position from the location Array.
-            var position = locations()[index].location;
-            var title = locations()[index].title;
-            var VENUE_ID = locations()[index].id;
-            var city = locations()[index].city;
+            var position = galleries()[index].location;
+            var title = galleries()[index].title;
+            var VENUE_ID = galleries()[index].id;
+            var city = galleries()[index].city;
     
             // Create a marker per location, and put into markers Array.
             var marker = new google.maps.Marker({
@@ -86,7 +82,7 @@ function initMap () {
             });        
         }
     }, null, "arrayChange");
-    ko.applyBindings(locations);
+    ko.applyBindings(galleries);
     google.maps.event.addDomListener(window, 'load', initializeGalleries);
 
 
@@ -96,7 +92,7 @@ function initMap () {
         if (infowindow.marker != marker) {
             infowindow.marker = marker;
             var footer = '<br><div>' + marker.title + '</div><img src="static/img/powered-by-foursquare-blue.png" width ="200">';
-            $.get( "https://api.foursquare.com/v2/evnues/" + marker.id + "/photos?" + fourSquareSecret, function( data ) {
+            $.get( "https://api.foursquare.com/v2/venues/" + marker.id + "/photos?" + fourSquareSecret, function( data ) {
                 if (data.response.photos.count > 0) {
                     infowindow.setContent('<img src="' + data.response.photos.items[0].prefix + "width200" + data.response.photos.items[0].suffix + '">' + footer);  
                 } else {
@@ -117,9 +113,9 @@ function initMap () {
     };
 }
 
-var galleries = [
-  'Item 1','Item 2','Item 3'
-];
+// var galleries = [
+//   'Item 1','Item 2','Item 3'
+// ];
 
 function makeUL(array) {
   var list = document.createElement('ul');
@@ -148,7 +144,6 @@ function artGallery(id, name, location) {
     self.location = {lat: location.lat, lng: location.lng};
     self.displayAddress = location.address + " " + location.city + ", "+ location.state;
     self.city = location.city
-    // Need to add something for google to reference to add delete
   };
   
   loadGalleries = function (query,lat,lng) {
@@ -158,7 +153,7 @@ function artGallery(id, name, location) {
   
       $.get( "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lng + query + "&categoryId=4bf58dd8d48988d1e2931735&radius=8000&" + fourSquareSecret, function( data ) {
           $.each( data.response.venues, function( index, value ) {
-              locations.push(new artGallery(value.id, value.name, value.location));
+              galleries.push(new artGallery(value.id, value.name, value.location));
           });
         }).fail(function() {
             //   TODO Better error handling
